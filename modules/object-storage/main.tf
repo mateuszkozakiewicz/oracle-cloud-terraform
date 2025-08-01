@@ -53,7 +53,7 @@ resource "oci_objectstorage_replication_policy" "bucket_replication" {
   name                    = each.value.name
   bucket                  = oci_objectstorage_bucket.bucket[each.key].name
   namespace               = data.oci_objectstorage_namespace.namespace.namespace
-  destination_bucket_name = lookup(each.optionals.replication_policy, "destination_bucket_name", oci_objectstorage_bucket.bucket[each.key].name)
+  destination_bucket_name = lookup(each.value.optionals.replication_policy, "destination_bucket_name", oci_objectstorage_bucket.bucket[each.key].name)
   destination_region_name = each.value.optionals.replication_policy.destination_region
   source_region_name      = each.value.optionals.replication_policy.source_region_name
 }
@@ -70,7 +70,7 @@ resource "oci_identity_policy" "replication_policy" {
     for k, v in var.buckets : k => v if v.optionals.replication_policy != null && v.optionals.source_region_name == var.region
   }
   compartment_id = each.value.compartment_id
-  description    = var.policy_description
+  description    = "Policy for bucket replication from ${each.value.optionals.replication_policy.source_region_name} to ${each.value.optionals.replication_policy.destination_region_name}"
   name           = "${each.value.name}-bucket-replication-policy-${each.value.optionals.replication_policy.source_region_name}-${each.value.optionals.replication_policy.destination_region_name}"
   statements     = "Allow service objectstorage-${each.value.optionals.replication_policy.source_region_name} to manage object-family in compartment ${data.oci_identity_compartment.compartment[each.key].name} where target.bucket.name = '${oci_objectstorage_bucket.bucket[each.key].name}'"
 }
