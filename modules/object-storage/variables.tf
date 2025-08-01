@@ -37,3 +37,5 @@ variable "buckets" {
       # versioning_enabled   : enable version of objects
   EOL
 }
+
+variable "region" { type = string }
